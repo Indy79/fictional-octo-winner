@@ -5,6 +5,9 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
+import akka.management.cluster.bootstrap.ClusterBootstrap
+import akka.management.scaladsl.AkkaManagement
+
 import scala.io.StdIn
 
 object HttpServerRoutingMinimal {
@@ -12,13 +15,22 @@ object HttpServerRoutingMinimal {
   def main(args: Array[String]): Unit = {
 
     implicit val system = ActorSystem(Behaviors.empty, "my-system")
+
+    AkkaManagement(system).start()
+    ClusterBootstrap(system).start()
+
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext = system.executionContext
 
     val route =
       path("hello") {
         get {
-          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+          complete(
+            HttpEntity(
+              ContentTypes.`text/html(UTF-8)`,
+              "<h1>Say hello to akka-http</h1>"
+            )
+          )
         }
       }
 
@@ -31,4 +43,3 @@ object HttpServerRoutingMinimal {
       .onComplete(_ => system.terminate()) // and shutdown when done
   }
 }
-
