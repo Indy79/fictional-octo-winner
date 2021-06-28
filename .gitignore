@@ -1,3 +1,6 @@
 *.class
 *.log
-/target
+target
+.idea
+.bsp
+**/target
